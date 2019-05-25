@@ -221,6 +221,10 @@
     <Compile Include="Migrations\201905181948205_AddOrderAndOrderItem.Designer.cs">
       <DependentUpon>201905181948205_AddOrderAndOrderItem.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905251700331_ChangeDeliverDateToNull.cs" />
+    <Compile Include="Migrations\201905251700331_ChangeDeliverDateToNull.Designer.cs">
+      <DependentUpon>201905251700331_ChangeDeliverDateToNull.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -329,6 +333,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905181948205_AddOrderAndOrderItem.resx">
       <DependentUpon>201905181948205_AddOrderAndOrderItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905251700331_ChangeDeliverDateToNull.resx">
+      <DependentUpon>201905251700331_ChangeDeliverDateToNull.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

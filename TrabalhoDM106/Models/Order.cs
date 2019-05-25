@@ -15,7 +15,7 @@ namespace TrabalhoDM106.Models
 
         public DateTime orderDate { get; set; }
 
-        public DateTime deliverDate { get; set; }
+        public DateTime? deliverDate { get; set; }
 
         public string status { get; set; }
 
@@ -25,7 +25,7 @@ namespace TrabalhoDM106.Models
 
         public double deliverPrice { get; set; }
 
-        public List<OrderItem> orderItems { get; set; }
+        public virtual List<OrderItem> orderItems { get; set; }
 
     }
 }
