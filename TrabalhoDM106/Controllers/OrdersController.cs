@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using TrabalhoDM106.CRMClient;
 using TrabalhoDM106.Models;
 
 namespace TrabalhoDM106.Controllers
@@ -187,8 +188,23 @@ namespace TrabalhoDM106.Controllers
             }
 
             return Unauthorized();
+        }
 
-
+        [ResponseType(typeof(string))]
+        [HttpGet]
+        [Route("cep")]
+        public IHttpActionResult searchCep()
+        {
+            CRMRestClient crmClient = new CRMRestClient();
+            Customer customer = crmClient.GetCustomerByEmail(User.Identity.Name);
+            if (customer != null)
+            {
+                return Ok(customer.zip);
+            }
+            else
+            {
+                return BadRequest("Falha	ao	consultar	o	CRM");
+            }
         }
     }
 }
