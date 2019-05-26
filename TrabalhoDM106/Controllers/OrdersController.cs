@@ -81,6 +81,7 @@ namespace TrabalhoDM106.Controllers
 
         // POST: api/Orders
         [ResponseType(typeof(Order))]
+        [Authorize]
         public IHttpActionResult PostOrder(Order order)
         {
             if (!ModelState.IsValid)
@@ -96,6 +97,7 @@ namespace TrabalhoDM106.Controllers
 
         // DELETE: api/Orders/5
         [ResponseType(typeof(Order))]
+        [Authorize]
         public IHttpActionResult DeleteOrder(int id)
         {
             Order order = db.Orders.Find(id);
@@ -103,11 +105,16 @@ namespace TrabalhoDM106.Controllers
             {
                 return NotFound();
             }
+            if (order.customerEmail.Equals(User.Identity.Name) || User.IsInRole("ADMIN"))
+            {
+                db.Orders.Remove(order);
+                db.SaveChanges();
 
-            db.Orders.Remove(order);
-            db.SaveChanges();
+                return Ok(order);
+            }
 
-            return Ok(order);
+            return Unauthorized();
+           
         }
 
         protected override void Dispose(bool disposing)
@@ -137,6 +144,51 @@ namespace TrabalhoDM106.Controllers
 
 
             return Unauthorized();
+        }
+
+        [ResponseType(typeof(Order))]
+        [HttpGet]
+        [Route("close")]
+        public IHttpActionResult closeOrder(int id)
+        {
+            Order order = db.Orders.Find(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (User.Identity.Name.Equals(order.customerEmail) || User.IsInRole("ADMIN"))
+            {
+                if(order.deliverPrice == 0)
+                {
+                    order.status = "fechado";
+
+                    db.Entry(order).State = EntityState.Modified;
+
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!OrderExists(id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+
+                    return Ok(order);
+
+                }
+            }
+
+            return Unauthorized();
+
+
         }
     }
 }
