@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using TrabalhoDM106.br.com.correios.ws;
 using TrabalhoDM106.CRMClient;
 using TrabalhoDM106.Models;
 
@@ -134,7 +135,7 @@ namespace TrabalhoDM106.Controllers
         [ResponseType(typeof(Order))]
         [HttpGet]
         [Route("ordersByEmail")]
-        public IHttpActionResult ordersByCustomerEmail(string email)
+        public IHttpActionResult OrdersByCustomerEmail(string email)
         {
             if(User.Identity.Name.Equals(email) || User.IsInRole("ADMIN"))
             {   
@@ -150,7 +151,7 @@ namespace TrabalhoDM106.Controllers
         [ResponseType(typeof(Order))]
         [HttpGet]
         [Route("close")]
-        public IHttpActionResult closeOrder(int id)
+        public IHttpActionResult CloseOrder(int id)
         {
             Order order = db.Orders.Find(id);
             if (order == null)
@@ -190,21 +191,75 @@ namespace TrabalhoDM106.Controllers
             return Unauthorized();
         }
 
-        [ResponseType(typeof(string))]
-        [HttpGet]
-        [Route("cep")]
-        public IHttpActionResult searchCep()
+  
+        public string SearchCep(string email)
         {
             CRMRestClient crmClient = new CRMRestClient();
-            Customer customer = crmClient.GetCustomerByEmail(User.Identity.Name);
+            Customer customer = crmClient.GetCustomerByEmail(email);
             if (customer != null)
             {
-                return Ok(customer.zip);
+                return customer.zip;
             }
             else
             {
-                return BadRequest("Falha	ao	consultar	o	CRM");
+                return null;
             }
+        }
+
+
+        [ResponseType(typeof(Order))]
+        [Authorize]
+        [HttpGet]
+        [Route("frete")]
+        public IHttpActionResult CalculaFrete(int id)
+        {
+            Order order = db.Orders.Find(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (User.Identity.Name.Equals(order.customerEmail) || User.IsInRole("ADMIN"))
+            {
+                double width = 0;
+                double height = 0;
+                double weight = 0;
+                double length = 0;
+
+                order.orderItems.ForEach(delegate (OrderItem item)
+                {
+                    length += item.Product.length;
+                    weight += item.Product.weight;
+                    height = item.Product.height > height ? item.Product.height : height;
+                    width = item.Product.width > width ? item.Product.width : width;
+                });
+
+                string cep = this.SearchCep(order.customerEmail);
+
+                if(cep != null)
+                {
+                    string frete;
+                    CalcPrecoPrazoWS correios = new CalcPrecoPrazoWS();
+                    cResultado resultado = correios.CalcPrecoPrazo("", "", "40010", "35600000", cep, weight.ToString(), 1, Convert.ToDecimal(length), Convert.ToDecimal(height), Convert.ToDecimal(width), 30, "N", 100, "S");
+                    if (resultado.Servicos[0].Erro.Equals("0"))
+                    {
+                        frete = "Valor do frete: " + resultado.Servicos[0].Valor + " - Prazo de	entrega: " + resultado.Servicos[0].PrazoEntrega + "	dia(s)";
+                        return Ok(frete);
+                    }
+                    else
+                    {
+                        return BadRequest("Código	do	erro:	" + resultado.Servicos[0].Erro + "-" + resultado.Servicos[0].MsgErro);
+                    }
+
+                    
+                }
+               
+            }
+
+
+            return Unauthorized();
+
+            
         }
     }
 }
