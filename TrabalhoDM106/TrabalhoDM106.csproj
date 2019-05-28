@@ -229,6 +229,10 @@
     <Compile Include="Migrations\201905251700331_ChangeDeliverDateToNull.Designer.cs">
       <DependentUpon>201905251700331_ChangeDeliverDateToNull.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201905280151243_VirtualOrderItem.cs" />
+    <Compile Include="Migrations\201905280151243_VirtualOrderItem.Designer.cs">
+      <DependentUpon>201905280151243_VirtualOrderItem.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -375,6 +379,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201905251700331_ChangeDeliverDateToNull.resx">
       <DependentUpon>201905251700331_ChangeDeliverDateToNull.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905280151243_VirtualOrderItem.resx">
+      <DependentUpon>201905280151243_VirtualOrderItem.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

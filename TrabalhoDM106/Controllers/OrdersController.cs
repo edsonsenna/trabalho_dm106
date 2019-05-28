@@ -86,10 +86,28 @@ namespace TrabalhoDM106.Controllers
         [Authorize]
         public IHttpActionResult PostOrder(Order order)
         {
+            double weight = 0;
+            double price = 0;
+
+            order.orderItems.ForEach(delegate (OrderItem item) 
+            {
+                Product product = db.Products.Find(item.ProductId);
+                weight += product.weight;
+                price += item.qtd * product.price;
+            });
+
+            order.deliverDate = null;
+            order.deliverPrice = 0;
+            order.status = "aberto";
+            order.totalPrice = price;
+            order.totalWeight = weight;
+            order.orderDate = DateTime.Now;
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
 
             db.Orders.Add(order);
             db.SaveChanges();
@@ -253,6 +271,8 @@ namespace TrabalhoDM106.Controllers
 
                     
                 }
+
+                return NotFound();
                
             }
 
