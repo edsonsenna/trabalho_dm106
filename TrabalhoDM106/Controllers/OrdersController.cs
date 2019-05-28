@@ -179,7 +179,7 @@ namespace TrabalhoDM106.Controllers
 
             if (User.Identity.Name.Equals(order.customerEmail) || User.IsInRole("ADMIN"))
             {
-                if(order.deliverPrice == 0)
+                if(order.deliverPrice != 0 && order.status != "fechado")
                 {
                     order.status = "fechado";
 
@@ -204,6 +204,8 @@ namespace TrabalhoDM106.Controllers
                     return Ok(order);
 
                 }
+
+                return BadRequest();
             }
 
             return Unauthorized();
@@ -247,7 +249,7 @@ namespace TrabalhoDM106.Controllers
                 order.orderItems.ForEach(delegate (OrderItem item)
                 {
                     length += item.Product.length;
-                    weight += item.Product.weight;
+                    weight += (item.Product.weight / 1000 ) * item.qtd;
                     height = item.Product.height > height ? item.Product.height : height;
                     width = item.Product.width > width ? item.Product.width : width;
                 });
@@ -256,13 +258,34 @@ namespace TrabalhoDM106.Controllers
 
                 if(cep != null)
                 {
-                    string frete;
                     CalcPrecoPrazoWS correios = new CalcPrecoPrazoWS();
                     cResultado resultado = correios.CalcPrecoPrazo("", "", "40010", "35600000", cep, weight.ToString(), 1, Convert.ToDecimal(length), Convert.ToDecimal(height), Convert.ToDecimal(width), 30, "N", 100, "S");
                     if (resultado.Servicos[0].Erro.Equals("0"))
                     {
-                        frete = "Valor do frete: " + resultado.Servicos[0].Valor + " - Prazo de	entrega: " + resultado.Servicos[0].PrazoEntrega + "	dia(s)";
-                        return Ok(frete);
+                        order.deliverPrice = Convert.ToDouble(resultado.Servicos[0].Valor);
+                        order.deliverDate = DateTime.Now.AddDays(Convert.ToInt32(resultado.Servicos[0].PrazoEntrega));
+                        //frete = "Valor do frete: " + resultado.Servicos[0].Valor + " - Prazo de entrega: " + resultado.Servicos[0].PrazoEntrega + " dia(s)";
+                        //return Ok(frete);
+
+                        db.Entry(order).State = EntityState.Modified;
+
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!OrderExists(id))
+                            {
+                                return NotFound();
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+
+                        return Ok(order);
                     }
                     else
                     {

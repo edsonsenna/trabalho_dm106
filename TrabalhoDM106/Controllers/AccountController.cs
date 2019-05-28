@@ -336,6 +336,14 @@ namespace TrabalhoDM106.Controllers
             {
                 return GetErrorResult(result);
             }
+            else
+            {
+                var addToRoleResult = await UserManager.AddToRoleAsync(user.Id, "USER");
+                if (!addToRoleResult.Succeeded)
+                {
+                    return GetErrorResult(result);
+                }
+            }
 
             return Ok();
         }
