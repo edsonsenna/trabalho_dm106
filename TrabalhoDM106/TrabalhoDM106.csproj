@@ -286,7 +286,9 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <None Include="Properties\PublishProfiles\esjtdm106 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\esjtdm106 - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\esjtdm106 - Web Deploy1.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
