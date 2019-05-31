@@ -98,7 +98,7 @@ namespace TrabalhoDM106.Controllers
 
             order.deliverDate = null;
             order.deliverPrice = 0;
-            order.status = "aberto";
+            order.status = "novo";
             order.totalPrice = price;
             order.totalWeight = weight;
             order.orderDate = DateTime.Now;
