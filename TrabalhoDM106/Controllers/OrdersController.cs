@@ -205,7 +205,7 @@ namespace TrabalhoDM106.Controllers
 
                 }
 
-                return BadRequest();
+                return BadRequest("Frete do pedido não calculado! Não é possível fechar o pedido.");
             }
 
             return Unauthorized();
@@ -238,9 +238,20 @@ namespace TrabalhoDM106.Controllers
             {
                 return NotFound();
             }
+            
 
             if (User.Identity.Name.Equals(order.customerEmail) || User.IsInRole("ADMIN"))
             {
+                if (order.orderItems.Count == 0)
+                {
+                    return BadRequest("Erro ao calcular frete. O pedido não contem items");
+                }
+
+                if (!order.status.Equals("novo"))
+                {
+                    return BadRequest("Erro ao calcular frete. Apenas pedidos com status 'novo' podem ter seu frete calculado.");
+                }
+
                 double width = 0;
                 double height = 0;
                 double weight = 0;
@@ -249,7 +260,7 @@ namespace TrabalhoDM106.Controllers
                 order.orderItems.ForEach(delegate (OrderItem item)
                 {
                     length += item.Product.length;
-                    weight += (item.Product.weight / 1000 ) * item.qtd;
+                    weight += item.Product.weight * item.qtd;
                     height = item.Product.height > height ? item.Product.height : height;
                     width = item.Product.width > width ? item.Product.width : width;
                 });
@@ -260,6 +271,11 @@ namespace TrabalhoDM106.Controllers
                 {
                     CalcPrecoPrazoWS correios = new CalcPrecoPrazoWS();
                     cResultado resultado = correios.CalcPrecoPrazo("", "", "40010", "35600000", cep, weight.ToString(), 1, Convert.ToDecimal(length), Convert.ToDecimal(height), Convert.ToDecimal(width), 30, "N", 100, "S");
+                    if(resultado == null)
+                    {
+                        return BadRequest("Erro ao calcular frete. Não foi possível conectar ao sistema dos correios.");
+                    }
+
                     if (resultado.Servicos[0].Erro.Equals("0"))
                     {
                         order.deliverPrice = Convert.ToDouble(resultado.Servicos[0].Valor);
@@ -289,13 +305,13 @@ namespace TrabalhoDM106.Controllers
                     }
                     else
                     {
-                        return BadRequest("Código	do	erro:	" + resultado.Servicos[0].Erro + "-" + resultado.Servicos[0].MsgErro);
+                        return BadRequest("Erro ao calcular frete. Código	do	erro:	" + resultado.Servicos[0].Erro + "-" + resultado.Servicos[0].MsgErro);
                     }
 
                     
                 }
 
-                return NotFound();
+                return BadRequest("Erro ao calcular frete. Não foi possível acessar o serviço de CRM e recuperar o CEP!");
                
             }
 

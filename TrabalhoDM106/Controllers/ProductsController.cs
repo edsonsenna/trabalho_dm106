@@ -12,13 +12,13 @@ using TrabalhoDM106.Models;
 
 namespace TrabalhoDM106.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class ProductsController : ApiController
     {
         private TrabalhoDM106Context db = new TrabalhoDM106Context();
 
 
-        //[Authorize(Roles = "ADMIN, USER")]
+        [Authorize(Roles = "ADMIN, USER")]
         // GET: api/Products
         public IQueryable<Product> GetProducts()
         {
